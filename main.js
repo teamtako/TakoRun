@@ -9,7 +9,7 @@ var camera;
 var fishyMesh;
 var playerMesh;
 var meshes = [];
-
+var rocketMesh;
 
 var stopvar;
 var verticalVelocity = 0;
@@ -29,6 +29,7 @@ var mvmtSpeed = 0.01;
 var isDead = false;
 var score = 0;
 var mainMenu = true;
+var missile = false;
 
 var difficulty;
 
@@ -161,8 +162,11 @@ window.onload = function () {
     //this.playerMesh = createTexturedMesh(verts, inds);
     playerMesh = createTexturedMesh(missileData[0], missileData[1]);
     fishyMesh = createTexturedMesh(asteroidData[0],asteroidData[1])
+    rocketMesh = createTexturedMesh(rocketData[0], rocketData[1]);
     playerMesh.orientation.rotate(new Vector3(0, 1, 0), -Math.PI);
-    meshes = [fishyMesh, playerMesh];
+    rocketMesh.scale.scale(0.1);
+    rocketMesh.orientation.rotate(new Vector3(1,0,0),2);
+    meshes = [fishyMesh, playerMesh, rocketMesh];
 
     startTime = new Date().getTime();
 
@@ -202,7 +206,12 @@ function updateFrame() {
     } else if (playerMesh.position.y < destY) {
         playerMesh.position.y += mvmtSpeed;
     }
-
+    console.log(missile)
+    if(missile) {
+        rocketMesh.position.x +=.2;
+    } else {
+        rocketMesh.position.x = -50.0;
+    }
 
     // verticalVelocity -= gravity * deltaTime;
     // playerMesh.position.y += verticalVelocity;
@@ -305,13 +314,14 @@ function mouseMove(evt) {
     destY = (((mouseY / canvas.height) * -8) + 6);
 }
 function mouseDown(evt) {
-    speed = 0.2;
-
+    if(!missile) {
+        rocketMesh.position = new Vector3(playerMesh.position.x,playerMesh.position.y,playerMesh.position.z);
+        missile = true;
+    }
     console.log("down");
 }
 function mouseUp(evt) {
-    speed = 0.1;
-
+    missile = false;
     console.log("up");
 }
 var an = true;
