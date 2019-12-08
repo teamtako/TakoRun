@@ -11,6 +11,7 @@ var playerMesh;
 var meshes = [];
 
 
+
 var stopvar;
 var verticalVelocity = 0;
 var gravity = 1;
@@ -222,12 +223,15 @@ function updateFrame() {
         console.log("" + fishyMesh.position.y);
     } else {
         fishyMesh.position.x -= (.1 * difficulty);
-        if (difficulty < 3) {
-            difficulty += .001;
-        } else {
-            fishyMesh.position.y += (playerMesh.position.y - fishyMesh.position.y) * .01;
-            fishyMesh.position.z += (playerMesh.position.z - fishyMesh.position.z) * .01;
-        }
+       // if (difficulty < 3) {
+            difficulty = Math.log(score+1)/2.7 + 0.3;
+            console.log(difficulty);
+            
+        //} 
+        //else {
+         //   fishyMesh.position.y += (playerMesh.position.y - fishyMesh.position.y) * .01;
+         //   fishyMesh.position.z += (playerMesh.position.z - fishyMesh.position.z) * .01;
+       // }
 
     }
     fishyMesh.orientation.rotate(new Vector3(0, 0, 1), 1 * deltaTime);
@@ -318,6 +322,7 @@ var an = true;
 function keyDown(event) {
     switch (event.keyCode) {
         case KEY_SPACE:
+            score = 0;
             mainMenu = !mainMenu;
             isDead = false;
             fishyMesh.position.x = 20;
