@@ -180,13 +180,9 @@ window.onload = function () {
 
 function checkIntersection(m1, m2) {
     dist = Vector3.sub(m1.position, m2.position);
-    if (Vector3.length(dist) < 1) {
-        m1.verts
-        gl.clearColor(1, 0, 0, 1);
+    if (Vector3.length(dist) < 1.5) {
+        m1.verts;
         isDead = true;
-
-        console.log("should Be dead");
-
     } else {
         gl.clearColor(0.5, 0.7, 1.0, 1.0);
 
@@ -224,19 +220,20 @@ function updateFrame() {
     playerMesh.position.y = ((mouseY / canvas.height) * -8) + 6;
 
     if (fishyMesh.position.x <= -7) {
-        fishyMesh.position.x = 80 / (difficulty);
+        score += 1;
+        fishyMesh.position.x = 80 / (score/2);
         fishyMesh.orientation.rotate(new Vector3(Math.random() * 360, Math.random() * 360, Math.random() * 360), 1 * deltaTime);
-        fishyMesh.position.z = (Math.random() - .5) * 8;
-        fishyMesh.position.y = Math.random() * 3;
+        fishyMesh.position.z = (Math.random() - .5) * 9;
+        fishyMesh.position.y = Math.random() * 4;
         console.log("" + fishyMesh.position.y);
     } else {
         fishyMesh.position.x -= (.1 * difficulty);
-        if (difficulty < 3) {
+     /*   if (difficulty < 3) {
             difficulty += .001;
         } else {
             fishyMesh.position.y += (playerMesh.position.y - fishyMesh.position.y) * .01;
             fishyMesh.position.z += (playerMesh.position.z - fishyMesh.position.z) * .01;
-        }
+        } */
 
     }
     fishyMesh.orientation.rotate(new Vector3(0, 0, 1), 1 * deltaTime);
@@ -262,12 +259,12 @@ function updateFrame() {
     textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
     if (mainMenu) {
         textCtx.font = "100px Arial";
-        textCtx.fillText("Press Space to Start Epic Game", 150, 200);
+        textCtx.fillText("Press Space to Start Game", 150, 200);
         difficulty = 1;
     } else {
         if (isDead) {
             textCtx.font = "100px Arial";
-            textCtx.fillText("You're Dead! Press S to restart", 170, 200);
+            textCtx.fillText("You're Dead! Press any key to restart", 170, 200);
             clearInterval(stopvar);
             difficulty = 1;
         } else {
@@ -275,7 +272,7 @@ function updateFrame() {
             textCtx.font = "30px Arial";
             textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
             textCtx.fillText("Score: " + score, 100, 100);
-            score += deltaTime;
+ 
             checkIntersection(fishyMesh, playerMesh);
         }
     }
@@ -328,9 +325,8 @@ var an = true;
 function keyDown(event) {
     switch (event.keyCode) {
         case KEY_SPACE:
-            mainMenu = !mainMenu;
+            mainMenu = false;
             isDead = false;
-            fishyMesh.position.x = 20;
             break;
     }
 }
