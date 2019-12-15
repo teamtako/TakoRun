@@ -10,12 +10,14 @@ var fishyMesh;
 var playerMesh;
 var meshes = [];
 
-
 var stopvar;
 var verticalVelocity = 0;
 var gravity = 1;
 var jumping = false;
 var cubeSpeed = 10;
+
+var deadSound;
+var menuSound;
 
 var startTime = 0;
 var endTime = 0;
@@ -166,12 +168,13 @@ window.onload = function () {
 
     startTime = new Date().getTime();
 
+    deadSound = new Audio('dead.mp3');
+    menuSound = new Audio('MainMenu.mp3');
 
     fishyMesh.position.x -= (.1);
     difficulty = 1;
     setInterval(updateFrame, 1);
     stopvar = setInterval(updateFrame, 1);
-
 }
 
 function checkIntersection(m1, m2) {
@@ -180,7 +183,7 @@ function checkIntersection(m1, m2) {
         m1.verts
         gl.clearColor(1, 0, 0, 1);
         isDead = true;
-
+        deadSound.play();
         console.log("should Be dead");
 
     } else {
@@ -190,6 +193,7 @@ function checkIntersection(m1, m2) {
 }
 
 function updateFrame() {
+
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.clear(gl.DEPTH_BUFFER_BIT);
     if (playerMesh.position.z > destZ) {  //playerMesh is missile mesh
@@ -203,7 +207,7 @@ function updateFrame() {
         playerMesh.position.y += mvmtSpeed;
     }
 
-
+    
     // verticalVelocity -= gravity * deltaTime;
     // playerMesh.position.y += verticalVelocity;
     // if(playerMesh.position.y < 0){
@@ -251,10 +255,12 @@ function updateFrame() {
     textCtx.font = "30px Arial";
     textCtx.fillStyle = "white";
     textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
+        
     if (mainMenu) {
         textCtx.font = "100px Arial";
         textCtx.fillText("Press Space to Start Epic Game", 150, 200);
         difficulty = 1;
+        menuSound.play();
     } else {
         if (isDead) {
             textCtx.font = "100px Arial";
