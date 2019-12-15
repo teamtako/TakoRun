@@ -264,7 +264,7 @@ function updateFrame() {
     } else {
         if (isDead) {
             textCtx.font = "100px Arial";
-            textCtx.fillText("You're Dead! Press any key to restart", 170, 200);
+            textCtx.fillText("You're Dead! Press Space to restart", 170, 200);
             clearInterval(stopvar);
             difficulty = 1;
         } else {
