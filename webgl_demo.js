@@ -9,7 +9,7 @@ var camera;
 var fishyMesh;
 var playerMesh;
 var meshes = [];
-var rocketMesh;
+
 
 var stopvar;
 var verticalVelocity = 0;
@@ -29,14 +29,12 @@ var mvmtSpeed = 0.01;
 var isDead = false;
 var score = 0;
 var mainMenu = true;
-var missile = false;
 
 var difficulty;
 
 var speed = 0.1;
 var destZ = 0;
 var destY = 0;
-var rocketMeshes = [];
 
 const KEY_0 = 48;
 const KEY_1 = 49;
@@ -163,12 +161,8 @@ window.onload = function () {
     //this.playerMesh = createTexturedMesh(verts, inds);
     playerMesh = createTexturedMesh(missileData[0], missileData[1]);
     fishyMesh = createTexturedMesh(asteroidData[0],asteroidData[1])
-    rocketMesh = createTexturedMesh(rocketData[0], rocketData[1]);
     playerMesh.orientation.rotate(new Vector3(0, 1, 0), -Math.PI);
-    rocketMesh.scale.scale(1);
-    rocketMesh.orientation.rotate(new Vector3(0,1,0),2);
-    meshes = [fishyMesh,  playerMesh, rocketMesh];
-    
+    meshes = [fishyMesh, playerMesh];
 
     startTime = new Date().getTime();
 
@@ -182,9 +176,13 @@ window.onload = function () {
 
 function checkIntersection(m1, m2) {
     dist = Vector3.sub(m1.position, m2.position);
-    if (Vector3.length(dist) < 1.5) {
-        m1.verts;
+    if (Vector3.length(dist) < 1) {
+        m1.verts
+        gl.clearColor(1, 0, 0, 1);
         isDead = true;
+
+        console.log("should Be dead");
+
     } else {
         gl.clearColor(0.5, 0.7, 1.0, 1.0);
 
@@ -192,9 +190,6 @@ function checkIntersection(m1, m2) {
 }
 
 function updateFrame() {
-    rocketMeshes.forEach(element => {
-      element.position.add(new Vector3(1 * deltaTime,0,0));
-    });
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.clear(gl.DEPTH_BUFFER_BIT);
     if (playerMesh.position.z > destZ) {  //playerMesh is missile mesh
@@ -207,8 +202,8 @@ function updateFrame() {
     } else if (playerMesh.position.y < destY) {
         playerMesh.position.y += mvmtSpeed;
     }
+    camera.position = new Vector3(playerMesh.position.x, playerMesh.position.y, playerMesh.position.z);
 
-    camera.position =  new Vector3(playerMesh.position.x - 4,playerMesh.position.y + 1,playerMesh.position.z);
     // verticalVelocity -= gravity * deltaTime;
     // playerMesh.position.y += verticalVelocity;
     // if(playerMesh.position.y < 0){
@@ -220,20 +215,19 @@ function updateFrame() {
     playerMesh.position.y = ((mouseY / canvas.height) * -8) + 6;
 
     if (fishyMesh.position.x <= -7) {
-        score += 1;
-        fishyMesh.position.x = 160;
+        fishyMesh.position.x = 80 / (difficulty);
         fishyMesh.orientation.rotate(new Vector3(Math.random() * 360, Math.random() * 360, Math.random() * 360), 1 * deltaTime);
-        fishyMesh.position.z = (Math.random() - .5) * 9;
-        fishyMesh.position.y = Math.random() * 4;
+        fishyMesh.position.z = (Math.random() - .5) * 8;
+        fishyMesh.position.y = Math.random() * 3;
         console.log("" + fishyMesh.position.y);
     } else {
         fishyMesh.position.x -= (.1 * difficulty);
-     /*   if (difficulty < 3) {
+        if (difficulty < 3) {
             difficulty += .001;
         } else {
             fishyMesh.position.y += (playerMesh.position.y - fishyMesh.position.y) * .01;
             fishyMesh.position.z += (playerMesh.position.z - fishyMesh.position.z) * .01;
-        } */
+        }
 
     }
     fishyMesh.orientation.rotate(new Vector3(0, 0, 1), 1 * deltaTime);
@@ -252,20 +246,19 @@ function updateFrame() {
 
     camera.updateView(deltaTime);
     renderTexturedMeshes(meshes, camera, new Vector3(4, 4, 4));
-    renderTexturedMeshes(rocketMeshes, camera, new Vector3(4, 4, 4));
-    renderSkybox(camera.projectionMatrix, camera.orientation);
+    //renderSkybox(camera.projectionMatrix, camera.orientation);
 
     textCtx.font = "30px Arial";
     textCtx.fillStyle = "white";
     textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
     if (mainMenu) {
         textCtx.font = "100px Arial";
-        textCtx.fillText("Press Space to Start Game", 150, 200);
+        textCtx.fillText("Press Space to Start Epic Game", 150, 200);
         difficulty = 1;
     } else {
         if (isDead) {
             textCtx.font = "100px Arial";
-            textCtx.fillText("You're Dead! Press Space to restart", 170, 200);
+            textCtx.fillText("You're Dead! Press S to restart", 170, 200);
             clearInterval(stopvar);
             difficulty = 1;
         } else {
@@ -273,7 +266,7 @@ function updateFrame() {
             textCtx.font = "30px Arial";
             textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
             textCtx.fillText("Score: " + score, 100, 100);
- 
+            score += deltaTime;
             checkIntersection(fishyMesh, playerMesh);
         }
     }
@@ -312,25 +305,22 @@ function mouseMove(evt) {
     destY = (((mouseY / canvas.height) * -8) + 6);
 }
 function mouseDown(evt) {
+    speed = 0.2;
 
-        rocketMeshes.push(new TexturedMesh(rocketMesh));
-        rocketMeshes[rocketMeshes.length - 1].position = new Vector3(playerMesh.position.x,playerMesh.position.y,playerMesh.position.z);
-        console.log(rocketMeshes.length);
- 
-    
     console.log("down");
 }
-function mouseUp(evt) { 
- 
+function mouseUp(evt) {
+    speed = 0.1;
+
     console.log("up");
 }
 var an = true;
 function keyDown(event) {
     switch (event.keyCode) {
         case KEY_SPACE:
-            mainMenu = false;
+            mainMenu = !mainMenu;
             isDead = false;
-            rocketMeshes = [];
+            fishyMesh.position.x = 20;
             break;
     }
 }
