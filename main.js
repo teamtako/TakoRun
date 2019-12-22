@@ -192,6 +192,7 @@ function checkIntersection(m1, m2) {
 function updateFrame() {
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.clear(gl.DEPTH_BUFFER_BIT);
+
     if (playerMesh.position.z > destZ) {  //playerMesh is missile mesh
         playerMesh.position.z -= mvmtSpeed;
     } else if (playerMesh.position.z < destZ) {
@@ -219,7 +220,6 @@ function updateFrame() {
         fishyMesh.orientation.rotate(new Vector3(Math.random() * 360, Math.random() * 360, Math.random() * 360), 1 * deltaTime);
         fishyMesh.position.z = (Math.random() - .5) * 8;
         fishyMesh.position.y = Math.random() * 3;
-        console.log("" + fishyMesh.position.y);
     } else {
         fishyMesh.position.x -= (.1 * difficulty);
         if (difficulty < 3) {
@@ -270,6 +270,8 @@ function updateFrame() {
             checkIntersection(fishyMesh, playerMesh);
         }
     }
+    textCtx.font = "20px Arial";
+    textCtx.fillText("Pause to donate to the well-being of belugas!",10,25);
     endTime = new Date().getTime();
     deltaTime = (endTime - startTime) / 1000.0;
     startTime = endTime;
@@ -306,6 +308,9 @@ function mouseMove(evt) {
 }
 function mouseDown(evt) {
     speed = 0.2;
+    if(mouseX>=0 && mouseY>=0 && mouseX<460 && mouseY<40){
+        window.location.replace("https://belugasanctuary.sealifetrust.org/en/how-to-help/make-a-donation/");
+    }
 
     console.log("down");
 }
@@ -321,6 +326,9 @@ function keyDown(event) {
             mainMenu = !mainMenu;
             isDead = false;
             fishyMesh.position.x = 20;
+            break;
+        case KEY_W:
+          
             break;
     }
 }
