@@ -166,14 +166,13 @@ window.onload = function () {
     rocketMesh = createTexturedMesh(rocketData[0], rocketData[1]);
     playerMesh.orientation.rotate(new Vector3(0, 1, 0), -Math.PI);
     rocketMesh.scale.scale(1);
-    rocketMesh.orientation.rotate(new Vector3(0 ,0,0), -Math.PI);
+    rocketMesh.orientation.rotate(new Vector3(-1 ,0,0), -Math.PI);
     meshes = [fishyMesh,  playerMesh, rocketMesh];
     
 
     startTime = new Date().getTime();
 
 
-    fishyMesh.position.x -= (.1);
     difficulty = 1;
     setInterval(updateFrame, 1);
     stopvar = setInterval(updateFrame, 1);
@@ -192,8 +191,21 @@ function checkIntersection(m1, m2) {
 }
 
 function updateFrame() {
+    distIntoArray = 0;
     rocketMeshes.forEach(element => {
-      element.position.add(new Vector3(1 * deltaTime,0,0));
+      element.position.add(new Vector3(20 * deltaTime * ((element.orientation.x) / Math.PI),20 * deltaTime * ((element.orientation.y) / Math.PI),20 * deltaTime * ((element.orientation.z) / Math.PI)));
+      dist = Vector3.sub(element.position, fishyMesh.position);
+      if(Vector3.length(dist) < 1.5)
+      {
+        fishyMesh.position.x = 180;
+        rocketMeshes.splice(distIntoArray,1);
+        element = null;
+      } else if (element.position.x > 60)
+      {
+        rocketMeshes.splice(distIntoArray,1);
+        element = null;
+      }
+      distIntoArray++;
     });
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.clear(gl.DEPTH_BUFFER_BIT);
@@ -226,7 +238,7 @@ function updateFrame() {
         fishyMesh.position.y = Math.random() * 4;
         console.log("" + fishyMesh.position.y);
     } else {
-        fishyMesh.position.x -= (.1 * difficulty);
+        fishyMesh.position.add(new  Vector3(-.1,0,0));
      /*   if (difficulty < 3) {
             difficulty += .001;
         } else {
@@ -240,12 +252,6 @@ function updateFrame() {
     if (Vector3.length(Vector3.sub(fishyMesh.position, playerMesh.position)) < 1.2) {
         score = 0;
         difficulty = 1;
-    }
-
-    if (fishyMesh.position.x <= -7) { //fishyMesh is asteroid mesh 
-        fishyMesh.position.x = 20;
-    } else {
-        fishyMesh.position.x -= speed;
     }
     fishyMesh.orientation.rotate(new Vector3(0, 0, 1), 1 * deltaTime);
 
@@ -291,7 +297,7 @@ function keyUp(event) {
             if (isDead == true) {
                 gl.clearColor(0.5, 0.7, 1.0, 1.0);
                 playerMesh.position.z = ((mouseX / canvas.width) * 2) + -1;
-                fishyMesh.position.x = 22;
+                fishyMesh.position.x = 180;
                 playerMesh.position.y = ((mouseY / canvas.height) * -2) + 3;
                 score = 0;
                 startTime = new Date().getTime();
@@ -314,8 +320,12 @@ function mouseDown(evt) {
 
         rocketMeshes.push(new TexturedMesh(rocketMesh));
         rocketMeshes[rocketMeshes.length - 1].position = new Vector3(playerMesh.position.x,playerMesh.position.y,playerMesh.position.z);
-        console.log(rocketMeshes.length);
- 
+        rocketMeshes[rocketMeshes.length - 1].orientation = Quaternion.rotationToQuaternion(new Vector3(1,0,-.1),1);
+
+        rocketMeshes.push(new TexturedMesh(rocketMesh));
+        rocketMeshes[rocketMeshes.length - 1].position = new Vector3(playerMesh.position.x,playerMesh.position.y,playerMesh.position.z);
+        rocketMeshes[rocketMeshes.length - 1].orientation = Quaternion.rotationToQuaternion(new Vector3(1,0,.1),1);
+
     
     console.log("down");
 }
