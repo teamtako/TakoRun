@@ -224,7 +224,7 @@ function updateFrame() {
     } else {
         fishyMesh.position.x -= (.1 * difficulty);
        // if (difficulty < 3) {
-            difficulty = Math.log(score+1)/2.7 + 0.3;
+            difficulty = Math.log(score+1)/1.5 + 0.3;
             console.log(difficulty);
             
         //} 
@@ -236,16 +236,8 @@ function updateFrame() {
     }
     fishyMesh.orientation.rotate(new Vector3(0, 0, 1), 1 * deltaTime);
 
-    if (Vector3.length(Vector3.sub(fishyMesh.position, playerMesh.position)) < 1.2) {
-        score = 0;
-        difficulty = 1;
-    }
+ 
 
-    if (fishyMesh.position.x <= -7) { //fishyMesh is asteroid mesh 
-        fishyMesh.position.x = 20;
-    } else {
-        fishyMesh.position.x -= speed;
-    }
     fishyMesh.orientation.rotate(new Vector3(0, 0, 1), 1 * deltaTime);
 
     camera.updateView(deltaTime);
