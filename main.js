@@ -228,26 +228,24 @@ function updateFrame() {
         console.log("" + fishyMesh.position.y);
     } else {
         fishyMesh.position.x -= (.1 * difficulty);
-     /*   if (difficulty < 3) {
+         if (difficulty < 3) {
             difficulty += .001;
         } else {
             fishyMesh.position.y += (playerMesh.position.y - fishyMesh.position.y) * .01;
             fishyMesh.position.z += (playerMesh.position.z - fishyMesh.position.z) * .01;
-        } */
+        } 
 
     }
-    fishyMesh.orientation.rotate(new Vector3(0, 0, 1), 1 * deltaTime);
 
+    
+    fishyMesh.orientation.rotate(new Vector3(0, 0, 1), 1 * deltaTime);
+    console.log(difficulty);
     if (Vector3.length(Vector3.sub(fishyMesh.position, playerMesh.position)) < 1.2) {
         score = 0;
         difficulty = 1;
     }
 
-    if (fishyMesh.position.x <= -7) { //fishyMesh is asteroid mesh 
-        fishyMesh.position.x = 20;
-    } else {
-        fishyMesh.position.x -= speed;
-    }
+   
     fishyMesh.orientation.rotate(new Vector3(0, 0, 1), 1 * deltaTime);
 
     camera.updateView(deltaTime);
@@ -268,6 +266,7 @@ function updateFrame() {
             textCtx.fillText("You're Dead! Press Space to restart", 170, 200);
             clearInterval(stopvar);
             difficulty = 1;
+            score = 0;
         } else {
             textCtx.fillText("Score: " + score, 100, 100);
             textCtx.font = "30px Arial";

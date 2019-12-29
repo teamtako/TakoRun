@@ -213,7 +213,7 @@ function updateFrame() {
 
     playerMesh.position.z = ((mouseX / canvas.width) * 8) - 4;
     playerMesh.position.y = ((mouseY / canvas.height) * -8) + 6;
-
+    console.log(difficulty);
     if (fishyMesh.position.x <= -7) {
         fishyMesh.position.x = 80 / (difficulty);
         fishyMesh.orientation.rotate(new Vector3(Math.random() * 360, Math.random() * 360, Math.random() * 360), 1 * deltaTime);
@@ -224,6 +224,7 @@ function updateFrame() {
         fishyMesh.position.x -= (.1 * difficulty);
         if (difficulty < 3) {
             difficulty += .001;
+            
         } else {
             fishyMesh.position.y += (playerMesh.position.y - fishyMesh.position.y) * .01;
             fishyMesh.position.z += (playerMesh.position.z - fishyMesh.position.z) * .01;
@@ -260,6 +261,7 @@ function updateFrame() {
             textCtx.font = "100px Arial";
             textCtx.fillText("You're Dead! Press S to restart", 170, 200);
             clearInterval(stopvar);
+            score = 0;
             difficulty = 1;
         } else {
             textCtx.fillText("Score: " + score, 100, 100);
@@ -270,10 +272,11 @@ function updateFrame() {
             checkIntersection(fishyMesh, playerMesh);
         }
     }
+    console.log("hello");
     endTime = new Date().getTime();
     deltaTime = (endTime - startTime) / 1000.0;
     startTime = endTime;
-
+    
 }
 function keyUp(event) {
     console.log(camera.position);
