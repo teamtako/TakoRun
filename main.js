@@ -166,7 +166,7 @@ window.onload = function () {
     rocketMesh = createTexturedMesh(rocketData[0], rocketData[1]);
     playerMesh.orientation.rotate(new Vector3(0, 1, 0), -Math.PI);
     rocketMesh.scale.scale(1);
-    rocketMesh.orientation.rotate(new Vector3(0,1,0),2);
+    rocketMesh.orientation.rotate(new Vector3(0 ,0,0), -Math.PI);
     meshes = [fishyMesh,  playerMesh, rocketMesh];
     
 
@@ -216,8 +216,7 @@ function updateFrame() {
     //     jumping = false;
     // }
 
-    playerMesh.position.z = ((mouseX / canvas.width) * 8) - 4;
-    playerMesh.position.y = ((mouseY / canvas.height) * -8) + 6;
+  
 
     if (fishyMesh.position.x <= -7) {
         score += 1;
