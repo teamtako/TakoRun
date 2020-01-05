@@ -37,6 +37,7 @@ var speed = 0.1;
 var destZ = 0;
 var destY = 0;
 var rocketMeshes = [];
+var enemyMeshes = [];
 
 const KEY_0 = 48;
 const KEY_1 = 49;
@@ -156,7 +157,6 @@ window.onload = function () {
     fishyMesh = createTexturedMesh(vertices, indices);
     //fishyMesh.textureID = generateGLTexture2D(monkeyPixels, 1024, 1024);
     fishyMesh.orientation.rotate(new Vector3(0, 1, 0), -Math.PI);
-    fishyMesh.position.y = 2;
     let verts = [];
     let inds = [];
     generateUnitCubeVerticesIndexedWithNormalsTexCoords(verts, inds);
@@ -167,7 +167,7 @@ window.onload = function () {
     playerMesh.orientation.rotate(new Vector3(0, 1, 0), -Math.PI);
     rocketMesh.scale.scale(1);
     rocketMesh.orientation.rotate(new Vector3(-1 ,0,0), -Math.PI);
-    meshes = [fishyMesh,  playerMesh, rocketMesh];
+    meshes = [playerMesh];
     
 
     startTime = new Date().getTime();
@@ -176,7 +176,7 @@ window.onload = function () {
     difficulty = 1;
     setInterval(updateFrame, 1);
     stopvar = setInterval(updateFrame, 1);
-
+    addEnemy();
 }
 
 function checkIntersection(m1, m2) {
@@ -190,14 +190,29 @@ function checkIntersection(m1, m2) {
     }
 }
 
+function nearestEnemy()
+{
+    shortestDist = 9999999;
+    reEnemy = null;
+    enemyMeshes.forEach(element => {
+    dist = Vector3.sub(element.position, playerMesh.position);
+    if (dist < shortestDist)
+    {
+        shortestDist = dist; reEnemy = element;
+    }
+    });
+    return reEnemy;
+}
+
 function updateFrame() {
+    //Update All Rockets (And clean unused ones)
     distIntoArray = 0;
     rocketMeshes.forEach(element => {
       element.position.add(new Vector3(20 * deltaTime * ((element.orientation.x) / Math.PI),20 * deltaTime * ((element.orientation.y) / Math.PI),20 * deltaTime * ((element.orientation.z) / Math.PI)));
-      dist = Vector3.sub(element.position, fishyMesh.position);
+      dist = Vector3.sub(element.position, nearestEnemy().position);
       if(Vector3.length(dist) < 1.5)
       {
-        fishyMesh.position.x = 180;
+     
         rocketMeshes.splice(distIntoArray,1);
         element = null;
       } else if (element.position.x > 60)
@@ -207,6 +222,22 @@ function updateFrame() {
       }
       distIntoArray++;
     });
+    // Update All Enemies
+    distIntoArray = 0;
+    enemyMeshes.forEach(element => {
+    element.position.add(new Vector3(-0.1,0,0));
+    element.orientation.rotate(new Vector3(0, 0, 1), 1 * deltaTime);
+     if (element.position.x <= -7)
+      {
+        enemyMeshes.splice(distIntoArray,1);
+        element = null;
+        addEnemy();
+
+      }
+      checkIntersection(element, playerMesh);
+      distIntoArray++;
+    });
+
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.clear(gl.DEPTH_BUFFER_BIT);
     if (playerMesh.position.z > destZ) {  //playerMesh is missile mesh
@@ -221,43 +252,11 @@ function updateFrame() {
     }
 
     camera.position =  new Vector3(playerMesh.position.x - 4,playerMesh.position.y + 1,playerMesh.position.z);
-    // verticalVelocity -= gravity * deltaTime;
-    // playerMesh.position.y += verticalVelocity;
-    // if(playerMesh.position.y < 0){
-    //     playerMesh.position.y = 0;
-    //     jumping = false;
-    // }
-
-  
-
-    if (fishyMesh.position.x <= -7) {
-        score += 1;
-        fishyMesh.position.x = 160;
-        fishyMesh.orientation.rotate(new Vector3(Math.random() * 360, Math.random() * 360, Math.random() * 360), 1 * deltaTime);
-        fishyMesh.position.z = (Math.random() - .5) * 9;
-        fishyMesh.position.y = Math.random() * 4;
-        console.log("" + fishyMesh.position.y);
-    } else {
-        fishyMesh.position.add(new  Vector3(-.1,0,0));
-     /*   if (difficulty < 3) {
-            difficulty += .001;
-        } else {
-            fishyMesh.position.y += (playerMesh.position.y - fishyMesh.position.y) * .01;
-            fishyMesh.position.z += (playerMesh.position.z - fishyMesh.position.z) * .01;
-        } */
-
-    }
-    fishyMesh.orientation.rotate(new Vector3(0, 0, 1), 1 * deltaTime);
-
-    if (Vector3.length(Vector3.sub(fishyMesh.position, playerMesh.position)) < 1.2) {
-        score = 0;
-        difficulty = 1;
-    }
-    fishyMesh.orientation.rotate(new Vector3(0, 0, 1), 1 * deltaTime);
 
     camera.updateView(deltaTime);
     renderTexturedMeshes(meshes, camera, new Vector3(4, 4, 4));
     renderTexturedMeshes(rocketMeshes, camera, new Vector3(4, 4, 4));
+    renderTexturedMeshes(enemyMeshes, camera, new Vector3(4, 4, 4));
     renderSkybox(camera.projectionMatrix, camera.orientation);
 
     textCtx.font = "30px Arial";
@@ -279,7 +278,7 @@ function updateFrame() {
             textCtx.clearRect(0, 0, textCanvas.width, textCanvas.height);
             textCtx.fillText("Score: " + score, 100, 100);
  
-            checkIntersection(fishyMesh, playerMesh);
+            
         }
     }
     endTime = new Date().getTime();
@@ -297,7 +296,6 @@ function keyUp(event) {
             if (isDead == true) {
                 gl.clearColor(0.5, 0.7, 1.0, 1.0);
                 playerMesh.position.z = ((mouseX / canvas.width) * 2) + -1;
-                fishyMesh.position.x = 180;
                 playerMesh.position.y = ((mouseY / canvas.height) * -2) + 3;
                 score = 0;
                 startTime = new Date().getTime();
@@ -310,6 +308,14 @@ function keyUp(event) {
     }
 }
 
+function addEnemy()
+{
+    enemyMeshes.push(new TexturedMesh(fishyMesh));
+    enemyMeshes[enemyMeshes.length - 1].position = new Vector3(100,0,0);
+    //enemyMeshes[enemyMeshes.length - 1].position = new Vector3((Math.random()-.5) * 2 * canvas.width,(Math.random()-.5) * 2 * canvas.height,100);
+
+}
+
 function mouseMove(evt) {
     mouseX = evt.x;
     mouseY = evt.y;
@@ -317,7 +323,7 @@ function mouseMove(evt) {
     destY = (((mouseY / canvas.height) * -8) + 6);
 }
 function mouseDown(evt) {
-
+        
         rocketMeshes.push(new TexturedMesh(rocketMesh));
         rocketMeshes[rocketMeshes.length - 1].position = new Vector3(playerMesh.position.x,playerMesh.position.y,playerMesh.position.z);
         rocketMeshes[rocketMeshes.length - 1].orientation = Quaternion.rotationToQuaternion(new Vector3(1,0,-.1),1);
@@ -326,12 +332,12 @@ function mouseDown(evt) {
         rocketMeshes[rocketMeshes.length - 1].position = new Vector3(playerMesh.position.x,playerMesh.position.y,playerMesh.position.z);
         rocketMeshes[rocketMeshes.length - 1].orientation = Quaternion.rotationToQuaternion(new Vector3(1,0,.1),1);
 
-    
-    console.log("down");
+        rocketMeshes.push(new TexturedMesh(rocketMesh));
+        rocketMeshes[rocketMeshes.length - 1].position = new Vector3(playerMesh.position.x,playerMesh.position.y,playerMesh.position.z);
+        rocketMeshes[rocketMeshes.length - 1].orientation = Quaternion.rotationToQuaternion(new Vector3(1,0,0),1);
 }
 function mouseUp(evt) { 
  
-    console.log("up");
 }
 var an = true;
 function keyDown(event) {
